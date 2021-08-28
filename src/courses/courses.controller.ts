@@ -1,7 +1,8 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Res } from '@nestjs/common';
 
 interface UserDTO {
   name: string;
+  text: string;
   id: number;
 }
 
@@ -10,32 +11,51 @@ export class CoursesController {
   users: UserDTO[];
   constructor() {
     this.users = [
-      { name: 'Leonardo Oliveira', id: 1 },
-      { name: 'Andre Host', id: 2 },
-      { name: 'Bruna Silva', id: 3 },
+      { name: 'Leonardo Oliveira', text: 'Oi eu sou uma string1', id: 1 },
+      { name: 'Andre Host', text: 'Oi eu sou uma string2', id: 2 },
+      { name: 'Bruna Silva', text: 'Oi eu sou uma string2', id: 3 },
     ];
   }
 
   @Get()
-  public index() {
+  public index(): UserDTO[] {
     return this.users;
   }
   @Get(':id')
-  public show(@Param() params) {
-    const user: UserDTO[] = this.users.filter(
+  public show(@Param() params, @Res() response): UserDTO {
+    const user: UserDTO = this.users.filter(
       (user) => user.id === Number(params.id),
-    );
-    if (user.length === 0) {
-      return { message: 'User NOT FOUND', statusCode: 404 };
+    )[0];
+    if (!user) {
+      return response.status(404).json({ message: 'User NOT FOUND' });
     }
     return user;
   }
 
   @Post()
-  public store(@Body() body) {
+  public store(@Body() body): UserDTO {
     const id: number = this.users.length + 1;
-    const newUser: UserDTO = { name: body.name, id };
+    const newUser: UserDTO = { ...body, id };
     this.users.push(newUser);
     return newUser;
+  }
+
+  @Patch(':id')
+  public update(@Param() params, @Res() response, @Body() body): UserDTO {
+    const user: UserDTO = this.users.filter(
+      (user) => user.id === Number(params.id),
+    )[0];
+
+    console.log(user);
+
+    if (!user) {
+      return response.status(404).json({ message: 'User NOT FOUND' });
+    }
+
+    const userUpdated: UserDTO = { ...user, ...body };
+
+    this.users[user.id - 1] = userUpdated;
+
+    return userUpdated;
   }
 }
