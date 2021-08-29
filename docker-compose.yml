@@ -1,0 +1,12 @@
+version: '3.9'
+
+services:
+  database:
+    image: postgres
+    restart: always
+    container_name: estudo_nestjs
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: leonardo
+    ports:
+      - '5432:5432'
