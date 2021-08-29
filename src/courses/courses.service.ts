@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { createCourseDTO, updateCourseDTO } from 'src/Dtos/course.dto';
 import { Course } from 'src/entities/course.entity';
 
+//bussines rule
 @Injectable()
 export class CoursesService {
   private courses: Course[] = [
