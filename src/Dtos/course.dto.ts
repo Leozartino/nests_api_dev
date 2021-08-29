@@ -1,11 +1,19 @@
-export interface CreateCourseDTO {
-  name: string;
-  description: string;
-  tags: string[];
+import { IsString } from 'class-validator';
+
+export class CreateCourseDTO {
+  @IsString()
+  readonly name: string;
+  @IsString()
+  readonly description: string;
+  @IsString({ each: true })
+  readonly tags: string[];
 }
 
-export interface UpdateCourseDTO {
-  name?: string;
-  description?: string;
-  tags?: string[];
+export class UpdateCourseDTO {
+  @IsString()
+  readonly name?: string;
+  @IsString()
+  readonly description?: string;
+  @IsString({ each: true })
+  readonly tags?: string[];
 }
