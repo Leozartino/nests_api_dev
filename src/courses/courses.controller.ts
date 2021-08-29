@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Param, Patch, Post, Res } from '@nestjs/common';
+import { CoursesService } from './courses.service';
 
 interface UserDTO {
   name: string;
@@ -9,7 +10,7 @@ interface UserDTO {
 @Controller('courses')
 export class CoursesController {
   users: UserDTO[];
-  constructor() {
+  constructor(private readonly coursesService: CoursesService) {
     this.users = [
       { name: 'Leonardo Oliveira', text: 'Oi eu sou uma string1', id: 1 },
       { name: 'Andre Host', text: 'Oi eu sou uma string2', id: 2 },
