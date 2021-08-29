@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { createCourseDTO, updateCourseDTO } from 'src/Dtos/course.dto';
 import { Course } from 'src/entities/course.entity';
 
@@ -7,15 +7,15 @@ import { Course } from 'src/entities/course.entity';
 export class CoursesService {
   private courses: Course[] = [
     {
+      id: 1,
       name: 'Curso 01',
       description: 'Oi eu sou uma string1',
-      id: 1,
       tags: ['nodejs', 'php', 'reactjs'],
     },
     {
+      id: 2,
       name: 'Curso 02',
       description: 'Oi eu sou uma string2',
-      id: 2,
       tags: ['nodejs', 'php', 'reactjs'],
     },
   ];
@@ -25,7 +25,14 @@ export class CoursesService {
   }
 
   public findOne(id: string): Course {
-    return this.courses.find((course: Course) => course.id === Number(id));
+    const course: Course | undefined = this.courses.find(
+      (course: Course) => course.id === Number(id),
+    );
+
+    if (!course) {
+      throw new HttpException('ID Course NOT FOUND!', HttpStatus.NOT_FOUND);
+    }
+    return course;
   }
 
   public create(createCourseDTO: createCourseDTO): Course {
@@ -36,7 +43,11 @@ export class CoursesService {
   }
 
   public update(id: string, updateCourseDTO: updateCourseDTO): Course {
-    const course: Course = this.findOne(id);
+    const course: Course | undefined = this.findOne(id);
+
+    if (!course) {
+      throw new HttpException(`Course doesn't exist`, HttpStatus.BAD_REQUEST);
+    }
 
     const courseUpdated: Course = { ...course, ...updateCourseDTO };
 
@@ -49,9 +60,12 @@ export class CoursesService {
     const indexCourse = this.courses.findIndex(
       (course: Course) => course.id === Number(id),
     );
+
     if (indexCourse >= 0) {
       this.courses.splice(indexCourse, 1);
+      return;
+    } else {
+      throw new HttpException(`Course doesn't exist`, HttpStatus.NOT_FOUND);
     }
-    return;
   }
 }
