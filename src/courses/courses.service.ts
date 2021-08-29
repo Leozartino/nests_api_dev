@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { createCourseDTO, updateCourseDTO } from 'src/Dtos/course.dto';
+import { CreateCourseDTO, UpdateCourseDTO } from 'src/Dtos/course.dto';
 import { Course } from 'src/entities/course.entity';
 
 //bussines rule
@@ -35,14 +35,14 @@ export class CoursesService {
     return course;
   }
 
-  public create(createCourseDTO: createCourseDTO): Course {
+  public create(createCourseDTO: CreateCourseDTO): Course {
     const id = this.courses.length + 1;
     const newCourse: Course = { id, ...createCourseDTO };
     this.courses.push(newCourse);
     return newCourse;
   }
 
-  public update(id: string, updateCourseDTO: updateCourseDTO): Course {
+  public update(id: string, updateCourseDTO: UpdateCourseDTO): Course {
     const course: Course | undefined = this.findOne(id);
 
     if (!course) {
