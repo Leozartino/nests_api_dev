@@ -27,10 +27,11 @@ export class CoursesService {
     return this.courses.find((course: Course) => course.id === Number(id));
   }
 
-  public create(createCourseDTO: createCourseDTO): void {
+  public create(createCourseDTO: createCourseDTO): Course {
     const id = this.courses.length + 1;
     const newCourse: Course = { id, ...createCourseDTO };
     this.courses.push(newCourse);
+    return newCourse;
   }
 
   public update(id: string, updateCourseDTO: updateCourseDTO): Course {
@@ -38,8 +39,18 @@ export class CoursesService {
 
     const courseUpdated: Course = { ...course, ...updateCourseDTO };
 
-    this.courses['id'] = courseUpdated;
+    this.courses[Number(id) - 1] = courseUpdated;
 
     return courseUpdated;
+  }
+
+  public remove(id: string): void {
+    const indexCourse = this.courses.findIndex(
+      (course: Course) => course.id === Number(id),
+    );
+    if (indexCourse >= 0) {
+      this.courses.splice(indexCourse, 1);
+    }
+    return;
   }
 }

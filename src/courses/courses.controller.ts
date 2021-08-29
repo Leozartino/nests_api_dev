@@ -1,62 +1,46 @@
-import { Body, Controller, Get, Param, Patch, Post, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Res,
+} from '@nestjs/common';
 import { CoursesService } from './courses.service';
-
-interface UserDTO {
-  name: string;
-  text: string;
-  id: number;
-}
+import { Course } from 'src/entities/course.entity';
+import { createCourseDTO, updateCourseDTO } from 'src/Dtos/course.dto';
 
 @Controller('courses')
 export class CoursesController {
-  users: UserDTO[];
-  constructor(private readonly coursesService: CoursesService) {
-    this.users = [
-      { name: 'Leonardo Oliveira', text: 'Oi eu sou uma string1', id: 1 },
-      { name: 'Andre Host', text: 'Oi eu sou uma string2', id: 2 },
-      { name: 'Bruna Silva', text: 'Oi eu sou uma string2', id: 3 },
-    ];
-  }
+  constructor(private readonly coursesService: CoursesService) {}
 
   @Get()
-  public index(): UserDTO[] {
-    return this.users;
+  public index(): Course[] {
+    return this.coursesService.findAll();
   }
   @Get(':id')
-  public show(@Param() params, @Res() response): UserDTO {
-    const user: UserDTO = this.users.filter(
-      (user) => user.id === Number(params.id),
-    )[0];
-    if (!user) {
+  public show(@Param() params, @Res() response): Course {
+    const course: Course = this.coursesService.findOne(params.id);
+    if (!course) {
       return response.status(404).json({ message: 'User NOT FOUND' });
     }
-    return user;
+    return course;
   }
 
   @Post()
-  public store(@Body() body): UserDTO {
-    const id: number = this.users.length + 1;
-    const newUser: UserDTO = { ...body, id };
-    this.users.push(newUser);
-    return newUser;
+  public store(@Body() body: createCourseDTO): Course {
+    return this.coursesService.create(body);
   }
 
   @Patch(':id')
-  public update(@Param() params, @Res() response, @Body() body): UserDTO {
-    const user: UserDTO = this.users.filter(
-      (user) => user.id === Number(params.id),
-    )[0];
+  public update(@Param() params, @Body() body: updateCourseDTO): Course {
+    return this.coursesService.update(params.id, body);
+  }
 
-    console.log(user);
-
-    if (!user) {
-      return response.status(404).json({ message: 'User NOT FOUND' });
-    }
-
-    const userUpdated: UserDTO = { ...user, ...body };
-
-    this.users[user.id - 1] = userUpdated;
-
-    return userUpdated;
+  @Delete(':id')
+  public delete(@Param() params): void {
+    return this.coursesService.remove(params.id);
   }
 }
