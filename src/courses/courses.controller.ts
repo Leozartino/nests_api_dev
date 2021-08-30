@@ -16,16 +16,16 @@ export class CoursesController {
   constructor(private readonly coursesService: CoursesService) {}
 
   @Get()
-  public index(): Course[] {
+  public index(): Promise<Course[]> {
     return this.coursesService.findAll();
   }
   @Get(':id')
-  public show(@Param() params): Course {
+  public show(@Param() params): Promise<Course> {
     return this.coursesService.findOne(params.id);
   }
 
   @Post()
-  public store(@Body() createCourseDTO: CreateCourseDTO): Course {
+  public store(@Body() createCourseDTO: CreateCourseDTO): Promise<Course> {
     return this.coursesService.create(createCourseDTO);
   }
 
@@ -33,12 +33,12 @@ export class CoursesController {
   public update(
     @Param() params,
     @Body() updateCourseDTO: UpdateCourseDTO,
-  ): Course {
+  ): Promise<Course> {
     return this.coursesService.update(params.id, updateCourseDTO);
   }
 
   @Delete(':id')
-  public delete(@Param() params): void {
+  public delete(@Param() params): Promise<void> {
     return this.coursesService.remove(params.id);
   }
 }
