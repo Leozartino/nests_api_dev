@@ -10,32 +10,40 @@ export class CoursesService {
   public constructor(
     @InjectRepository(Course)
     private readonly courseRepository: Repository<Course>,
+
     @InjectRepository(Tag)
     private readonly tagRepository: Repository<Tag>,
   ) {}
   public async findAll(): Promise<Course[]> {
-    return await this.courseRepository.find();
+    return await this.courseRepository.find({ relations: ['tags'] });
   }
 
   public async findOne(id: string): Promise<Course> {
     try {
-      return await this.courseRepository.findOneOrFail(id);
+      return await this.courseRepository.findOneOrFail(id, {
+        relations: ['tags'],
+      });
     } catch (error) {
       throw new HttpException('ID Course NOT FOUND!', HttpStatus.NOT_FOUND);
     }
   }
 
   public async create(createCourseDTO: CreateCourseDTO): Promise<Course> {
-    const tags = await Promise.all(
-      createCourseDTO.tags.map((tag: Tag) =>
-        this.preLoadTagByName(tag.name_tag),
-      ),
-    );
-    const newCourse: Course = this.courseRepository.create({
-      ...createCourseDTO,
-      tags,
-    });
-    return await this.courseRepository.save(newCourse);
+    try {
+      const tags = await Promise.all(
+        createCourseDTO.tags.map(({ name_tag }) =>
+          this.preLoadTagByName(name_tag),
+        ),
+      );
+      console.log(tags);
+      const newCourse: Course = this.courseRepository.create({
+        ...createCourseDTO,
+        tags,
+      });
+      return await this.courseRepository.save(newCourse);
+    } catch (error) {
+      throw new Error(error);
+    }
   }
 
   public async update(
@@ -46,8 +54,8 @@ export class CoursesService {
       const tags =
         updateCourseDTO.tags &&
         (await Promise.all(
-          updateCourseDTO.tags.map((tag: Tag) =>
-            this.preLoadTagByName(tag.name_tag),
+          updateCourseDTO.tags.map(({ name_tag }) =>
+            this.preLoadTagByName(name_tag),
           ),
         ));
       const courseUpdated: Course = await this.courseRepository.preload({
@@ -75,12 +83,15 @@ export class CoursesService {
     }
   }
   private async preLoadTagByName(name_tag: string): Promise<Tag> {
-    const tag = await this.tagRepository.findOne({ name_tag });
+    const tag: Tag = await this.tagRepository.findOne({ name_tag });
+
+    console.log(tag);
 
     if (tag) {
       return tag;
     }
 
-    return this.tagRepository.create({ name_tag });
+    const newTag = this.tagRepository.create({ name_tag });
+    return newTag;
   }
 }
